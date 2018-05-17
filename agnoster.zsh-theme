@@ -78,6 +78,12 @@ prompt_context() {
   fi
 }
 
+prompt_k8s() {
+  CURRENT_CONTEXT=$(kubectl config view --minify -o template --template='{{ index . "current-context" }}')
+  prompt_segment green black " \u2638 $CURRENT_CONTEXT" # ☸
+}
+
+
 # Git: branch/detached head, dirty status
 prompt_git() {
   local color ref
@@ -115,11 +121,15 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
+  if [[ $RETVAL -ne 0 ]]; then
+    symbols+="%{%F{red}%}✘"
+  else
+    symbols+="%{%F{green}%}\u2714"
+  fi
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
 
-  [[ -n "$symbols" ]] && prompt_segment $PRIMARY_FG default " $symbols "
+  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
 }
 
 # Display current virtual environment
@@ -136,7 +146,7 @@ prompt_agnoster_main() {
   RETVAL=$?
   CURRENT_BG='NONE'
   prompt_status
-  prompt_context
+  prompt_k8s
   prompt_virtualenv
   prompt_dir
   prompt_git
