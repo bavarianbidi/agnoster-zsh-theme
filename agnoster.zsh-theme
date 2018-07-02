@@ -79,8 +79,13 @@ prompt_context() {
 }
 
 prompt_k8s() {
-  CURRENT_CONTEXT=$(kubectl config view --minify -o template --template='{{ index . "current-context" }}')
-  prompt_segment green black " \u2638 $CURRENT_CONTEXT" # ☸
+  CURRENT_CONTEXT=$(kubectl config current-context)
+  CURRENT_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.name==\"$CURRENT_CONTEXT\")].context.namespace}")
+  if [ -z "$CURRENT_NAMESPACE" ];
+  then
+     CURRENT_NAMESPACE="default"
+  fi
+  prompt_segment green black " \u2638 $CURRENT_CONTEXT | $CURRENT_NAMESPACE" # ☸
 }
 
 
