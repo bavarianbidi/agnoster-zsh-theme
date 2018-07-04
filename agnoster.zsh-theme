@@ -66,6 +66,18 @@ prompt_end() {
   CURRENT_BG=''
 }
 
+prompt_newline() {
+  if [[ -n $CURRENT_BG ]]; then
+    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR
+%{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+  else
+    echo -n " %{%k%}"
+  fi
+
+  echo -n " %{%f%}"
+  CURRENT_BG=''
+}
+
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
@@ -85,7 +97,7 @@ prompt_k8s() {
   then
      CURRENT_NAMESPACE="default"
   fi
-  prompt_segment green black " \u2638 $CURRENT_CONTEXT | $CURRENT_NAMESPACE" # ☸
+  prompt_segment black defaults " \u2638 $CURRENT_CONTEXT - $CURRENT_NAMESPACE " # ☸
 }
 
 
@@ -151,10 +163,11 @@ prompt_agnoster_main() {
   RETVAL=$?
   CURRENT_BG='NONE'
   prompt_status
-  prompt_k8s
   prompt_virtualenv
   prompt_dir
   prompt_git
+  prompt_k8s
+  prompt_newline
   prompt_end
 }
 
